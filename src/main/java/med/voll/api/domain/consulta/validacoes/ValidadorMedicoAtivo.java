@@ -5,7 +5,7 @@ import med.voll.api.domain.medico.MedicoRepository;
 import med.voll.api.infra.exception.ValidacaoException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class ValidadorMedicoAtivo {
+public class ValidadorMedicoAtivo implements ValidadorAgendamentoDeConsulta{
 
     private MedicoRepository medicoRepository;
 
