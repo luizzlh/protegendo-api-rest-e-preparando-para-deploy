@@ -4,17 +4,14 @@ import med.voll.api.domain.consulta.DadosAgendamentoConsulta;
 import med.voll.api.domain.paciente.PacienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class ValidadorPacienteInativo {
+public class ValidadorPacienteAtivo {
 
-    @Autowired
     private PacienteRepository pacienteRepository;
 
     public void validar(DadosAgendamentoConsulta dadosAgendamentoConsulta) {
-
         var pacienteEstaAtivo = pacienteRepository.findAtivoById(dadosAgendamentoConsulta.idPaciente());
-
         if(!pacienteEstaAtivo) {
-            throw new RuntimeException("Paciente não está ativo no sistema!");
+            throw new RuntimeException("Consulta não pode ser agendada com paciente excluído!");
         }
     }
 
