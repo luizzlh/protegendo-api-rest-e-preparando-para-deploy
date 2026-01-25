@@ -1,5 +1,6 @@
 package med.voll.api.domain.consulta;
 
+import jakarta.validation.Valid;
 import med.voll.api.domain.consulta.validacoes.ValidadorAgendamentoDeConsulta;
 import med.voll.api.domain.medico.Medico;
 import med.voll.api.domain.medico.MedicoRepository;
@@ -23,10 +24,10 @@ public class AgendaDeConsultas {
     @Autowired
     private List<ValidadorAgendamentoDeConsulta> validadores;
 
-    public void agendar(DadosAgendamentoConsulta dados){
+    public DadosDetalhamentoConsulta agendar(DadosAgendamentoConsulta dados){
 
         if(!pacienteRepository.existsById(dados.idPaciente())){
-            throw new ValidacaoException("Paciente não existe!");
+            throw new ValidacaoException("id do Paciente não existe!");
         }
 
         if(dados.idMedico() != null && !medicoRepository.existsById(dados.idMedico())){
@@ -37,12 +38,17 @@ public class AgendaDeConsultas {
 
         var paciente = pacienteRepository.getReferenceById(dados.idPaciente());
         var medico = escolherMedico(dados);
+        if(medico == null){
+            throw new ValidacaoException("Não existe médico disponível nessa data!");
+        }
         var consulta = new Consulta(null, medico, paciente, dados.data());
         consultaRepository.save(consulta);
+
+        return new DadosDetalhamentoConsulta(consulta);
     }
 
     private Medico escolherMedico(DadosAgendamentoConsulta dados) {
-        if(dados.idMedico() == null){
+        if(dados.idMedico() != null){
             return medicoRepository.getReferenceById(dados.idMedico());
         }
 
@@ -54,4 +60,11 @@ public class AgendaDeConsultas {
 
     }
 
+    public void cancelarConsulta(@Valid DadosCancelamentoConsulta dados) {
+        if(!consultaRepository.existsByMedicoIdAndPacienteIdAndData(dados.idMedico(), dados.idPaciente(), dados.data())){
+            throw new ValidacaoException("Não existe essa consulta agendada!");
+        }
+        var consultaId = consultaRepository.consultarIdConsulta(dados.idMedico(), dados.idPaciente(), dados.data());
+        consultaRepository.deleteById(consultaId);
+    }
 }
