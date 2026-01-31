@@ -12,13 +12,12 @@ import java.time.LocalDateTime;
 
 public interface MedicoRepository extends JpaRepository<Medico, Long> {
 
-
     Page<Medico> findAllByAtivoTrue(Pageable pagina);
 
     @Query("""
             SELECT M 
             FROM Medico M
-            WHERE M.ativo = TRUE
+            WHERE M.ativo = 1
             AND M.especialidade = :especialidade
             AND M.id NOT IN(
                         SELECT C.medico.id FROM Consulta C
